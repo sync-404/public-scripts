@@ -171,6 +171,90 @@ function Sync:CreateWindow(titleText)
             end)
             if default then callback(default) end
         end
+
+        function Tab:AddSlider(text, min, max, default, callback)
+            local SliderFrame = Create("Frame", {BackgroundColor3 = Theme.Container, Size = UDim2.new(1, -5, 0, 55), Parent = Tab.Page})
+            Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = SliderFrame})
+            Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = SliderFrame})
+
+            local TitleLabel = Create("TextLabel", {
+                Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain,
+                BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 5), TextXAlignment = Enum.TextXAlignment.Left, Parent = SliderFrame
+            })
+
+            local ValueLabel = Create("TextLabel", {
+                Text = tostring(default), Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextDim,
+                BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 5), TextXAlignment = Enum.TextXAlignment.Right, Parent = SliderFrame
+            })
+
+            local BarBG = Create("Frame", {
+                BackgroundColor3 = Theme.Background, Size = UDim2.new(1, -20, 0, 8), Position = UDim2.new(0, 10, 0, 35), Parent = SliderFrame
+            })
+            Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = BarBG})
+            Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = BarBG})
+
+            local Fill = Create("Frame", {
+                BackgroundColor3 = Theme.Accent, Size = UDim2.new((default - min) / (max - min), 0, 1, 0), Parent = BarBG
+            })
+            Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = Fill})
+
+            local dragging = false
+            local function UpdateSlider(input)
+                local percent = math.clamp((input.Position.X - BarBG.AbsolutePosition.X) / BarBG.AbsoluteSize.X, 0, 1)
+                local val = math.floor(min + ((max - min) * percent))
+                ValueLabel.Text = tostring(val)
+                TweenService:Create(Fill, TweenInfo.new(0.1), {Size = UDim2.new(percent, 0, 1, 0)}):Play()
+                callback(val)
+            end
+
+            BarBG.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    dragging = true
+                    UpdateSlider(input)
+                end
+            end)
+
+            UserInputService.InputChanged:Connect(function(input)
+                if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                    UpdateSlider(input)
+                end
+            end)
+
+            UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    dragging = false
+                end
+            end)
+            
+            -- Call initially to set state
+            callback(default)
+        end
+        
+        function Tab:AddTextbox(text, placeholder, callback)
+            local BoxFrame = Create("Frame", {BackgroundColor3 = Theme.Container, Size = UDim2.new(1, -5, 0, 45), Parent = Tab.Page})
+            Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = BoxFrame})
+            Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = BoxFrame})
+
+            Create("TextLabel", {
+                Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain,
+                BackgroundTransparency = 1, Size = UDim2.new(0.5, 0, 1, 0), Position = UDim2.new(0, 10, 0, 0), TextXAlignment = Enum.TextXAlignment.Left, Parent = BoxFrame
+            })
+
+            local TextBoxBg = Create("Frame", {
+                BackgroundColor3 = Theme.Background, Size = UDim2.new(0.45, 0, 0, 28), Position = UDim2.new(0.5, 0, 0.5, -14), Parent = BoxFrame
+            })
+            Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = TextBoxBg})
+            Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = TextBoxBg})
+
+            local TextBox = Create("TextBox", {
+                Text = "", PlaceholderText = placeholder, Font = Theme.Font, TextSize = 12, TextColor3 = Theme.TextMain, PlaceholderColor3 = Theme.TextDim,
+                BackgroundTransparency = 1, Size = UDim2.new(1, -10, 1, 0), Position = UDim2.new(0, 5, 0, 0), TextXAlignment = Enum.TextXAlignment.Left, Parent = TextBoxBg, ClearTextOnFocus = false
+            })
+
+            TextBox.FocusLost:Connect(function(enterPressed)
+                callback(TextBox.Text)
+            end)
+        end
         
         return Tab
     end
