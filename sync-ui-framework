@@ -1,0 +1,172 @@
+--[[
+    __  _  _  _  _  __   
+   / __)( \/ )( \( )/ __)  SYNC UI FRAMEWORK
+   \__ \ )  /  )  (( (__   
+   (__/ (__/  (_)\_)\___) 
+--]]
+
+local Sync = {}
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+
+-- Use gethui() if it exists (for exploit hiding), otherwise fallback to CoreGui
+local ParentGui = getfenv().gethui and gethui() or CoreGui
+
+local Theme = {
+    Background = Color3.fromRGB(13, 15, 18),
+    Container = Color3.fromRGB(20, 22, 27),
+    Border = Color3.fromRGB(35, 38, 45),
+    Accent = Color3.fromRGB(0, 212, 255), -- Electric Cyan
+    TextMain = Color3.fromRGB(240, 240, 240),
+    TextDim = Color3.fromRGB(150, 150, 160),
+    Font = Enum.Font.GothamMedium
+}
+
+local function Create(cls, props)
+    local inst = Instance.new(cls)
+    for k, v in pairs(props) do if k ~= "Parent" then inst[k] = v end end
+    inst.Parent = props.Parent
+    return inst
+end
+
+local function MakeDraggable(dragArea, moveTarget)
+    local dragging, dragInput, dragStart, startPos
+    dragArea.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging, dragStart, startPos = true, input.Position, moveTarget.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+    dragArea.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            TweenService:Create(moveTarget, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            }):Play()
+        end
+    end)
+end
+
+function Sync:CreateWindow(titleText)
+    local Window = {Tabs = {}, CurrentTab = nil}
+    
+    Window.Gui = Create("ScreenGui", {Name = "SyncUI", Parent = ParentGui})
+    
+    Window.Main = Create("Frame", {
+        BackgroundColor3 = Theme.Background,
+        Position = UDim2.new(0.5, -250, 0.5, -175),
+        Size = UDim2.new(0, 500, 0, 350),
+        ClipsDescendants = true,
+        Parent = Window.Gui
+    })
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Window.Main})
+    Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = Window.Main})
+    
+    Window.Topbar = Create("Frame", {
+        BackgroundColor3 = Theme.Container,
+        Size = UDim2.new(1, 0, 0, 45),
+        Parent = Window.Main
+    })
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Window.Topbar})
+    Create("Frame", {BackgroundColor3 = Theme.Border, Size = UDim2.new(1, 0, 0, 1), Position = UDim2.new(0, 0, 1, -1), BorderSizePixel = 0, Parent = Window.Topbar})
+    
+    Window.Title = Create("TextLabel", {
+        Text = titleText, Font = Enum.Font.GothamBold, TextSize = 16, TextColor3 = Theme.Accent,
+        Position = UDim2.new(0, 15, 0, 0), Size = UDim2.new(0, 150, 1, 0),
+        TextXAlignment = Enum.TextXAlignment.Left, BackgroundTransparency = 1, Parent = Window.Topbar
+    })
+    
+    Window.TabContainer = Create("Frame", {
+        BackgroundTransparency = 1, Position = UDim2.new(0, 165, 0, 0), Size = UDim2.new(1, -175, 1, 0), Parent = Window.Topbar
+    })
+    Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 15), Parent = Window.TabContainer})
+    
+    Window.ContentContainer = Create("Frame", {
+        BackgroundTransparency = 1, Position = UDim2.new(0, 10, 0, 55), Size = UDim2.new(1, -20, 1, -65), Parent = Window.Main
+    })
+    
+    MakeDraggable(Window.Topbar, Window.Main)
+    
+    function Window:AddTab(tabName)
+        local Tab = {}
+        Tab.Button = Create("TextButton", {
+            Text = tabName, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextDim,
+            BackgroundTransparency = 1, Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, Parent = Window.TabContainer
+        })
+        
+        Tab.Page = Create("ScrollingFrame", {
+            BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), CanvasSize = UDim2.new(0, 0, 0, 0),
+            AutomaticSize = Enum.AutomaticSize.Y, ScrollBarThickness = 2, ScrollBarImageColor3 = Theme.Border, Visible = false, Parent = Window.ContentContainer
+        })
+        Create("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 8), Parent = Tab.Page})
+        
+        Tab.Button.MouseButton1Click:Connect(function()
+            if Window.CurrentTab then
+                Window.CurrentTab.Page.Visible = false
+                TweenService:Create(Window.CurrentTab.Button, TweenInfo.new(0.2), {TextColor3 = Theme.TextDim}):Play()
+            end
+            Window.CurrentTab = Tab
+            Tab.Page.Visible = true
+            TweenService:Create(Tab.Button, TweenInfo.new(0.2), {TextColor3 = Theme.TextMain}):Play()
+        end)
+        
+        if not Window.CurrentTab then Tab.Button.MouseButton1Click:Fire() end
+        
+        function Tab:AddButton(text, callback)
+            local BtnFrame = Create("Frame", {BackgroundColor3 = Theme.Container, Size = UDim2.new(1, -5, 0, 35), Parent = Tab.Page})
+            Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = BtnFrame})
+            Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = BtnFrame})
+            
+            local Btn = Create("TextButton", {
+                Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain,
+                BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), Parent = BtnFrame
+            })
+            
+            Btn.MouseButton1Click:Connect(function()
+                TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Border}):Play()
+                task.wait(0.1)
+                TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Container}):Play()
+                callback()
+            end)
+        end
+        
+        function Tab:AddToggle(text, default, callback)
+            local toggled = default
+            local TogFrame = Create("Frame", {BackgroundColor3 = Theme.Container, Size = UDim2.new(1, -5, 0, 35), Parent = Tab.Page})
+            Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = TogFrame})
+            Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = TogFrame})
+            
+            Create("TextLabel", {
+                Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain,
+                BackgroundTransparency = 1, Size = UDim2.new(1, -50, 1, 0), Position = UDim2.new(0, 10, 0, 0), TextXAlignment = Enum.TextXAlignment.Left, Parent = TogFrame
+            })
+            
+            local Indicator = Create("Frame", {
+                BackgroundColor3 = toggled and Theme.Accent or Theme.Background,
+                Size = UDim2.new(0, 18, 0, 18), Position = UDim2.new(1, -28, 0.5, -9), Parent = TogFrame
+            })
+            Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = Indicator})
+            Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = Indicator})
+            
+            local Btn = Create("TextButton", {Text = "", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), Parent = TogFrame})
+            
+            Btn.MouseButton1Click:Connect(function()
+                toggled = not toggled
+                TweenService:Create(Indicator, TweenInfo.new(0.2), {BackgroundColor3 = toggled and Theme.Accent or Theme.Background}):Play()
+                callback(toggled)
+            end)
+            if default then callback(default) end
+        end
+        
+        return Tab
+    end
+    return Window
+end
+
+return Sync
