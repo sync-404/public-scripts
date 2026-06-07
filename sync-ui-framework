@@ -12,16 +12,58 @@ local CoreGui = game:GetService("CoreGui")
 
 local ParentGui = getfenv().gethui and gethui() or CoreGui
 
-local Theme = {
-    Background = Color3.fromRGB(13, 15, 18),
-    Container = Color3.fromRGB(20, 22, 27),
-    Border = Color3.fromRGB(35, 38, 45),
-    Accent = Color3.fromRGB(0, 212, 255),
-    TextMain = Color3.fromRGB(240, 240, 240),
-    TextDim = Color3.fromRGB(150, 150, 160),
-    Font = Enum.Font.GothamMedium
+-- === THEME CONFIGURATION ===
+Sync.Themes = {
+    Default = {
+        Background = Color3.fromRGB(13, 15, 18),
+        Container = Color3.fromRGB(20, 22, 27),
+        Border = Color3.fromRGB(35, 38, 45),
+        Accent = Color3.fromRGB(0, 212, 255), -- Electric Cyan
+        TextMain = Color3.fromRGB(240, 240, 240),
+        TextDim = Color3.fromRGB(150, 150, 160),
+        Font = Enum.Font.GothamMedium
+    },
+    Crimson = {
+        Background = Color3.fromRGB(18, 12, 12),
+        Container = Color3.fromRGB(25, 18, 18),
+        Border = Color3.fromRGB(45, 32, 32),
+        Accent = Color3.fromRGB(255, 60, 60), -- Blood Red
+        TextMain = Color3.fromRGB(245, 235, 235),
+        TextDim = Color3.fromRGB(165, 145, 145),
+        Font = Enum.Font.GothamMedium
+    },
+    Amethyst = {
+        Background = Color3.fromRGB(14, 12, 18),
+        Container = Color3.fromRGB(21, 18, 25),
+        Border = Color3.fromRGB(38, 32, 45),
+        Accent = Color3.fromRGB(160, 80, 255), -- Purple
+        TextMain = Color3.fromRGB(240, 235, 245),
+        TextDim = Color3.fromRGB(155, 145, 165),
+        Font = Enum.Font.GothamMedium
+    },
+    Carbon = {
+        Background = Color3.fromRGB(10, 10, 10),
+        Container = Color3.fromRGB(15, 15, 15),
+        Border = Color3.fromRGB(25, 25, 25),
+        Accent = Color3.fromRGB(255, 255, 255), -- Pure White
+        TextMain = Color3.fromRGB(220, 220, 220),
+        TextDim = Color3.fromRGB(120, 120, 120),
+        Font = Enum.Font.GothamMedium
+    }
 }
 
+-- Initialize with Default
+local Theme = Sync.Themes.Default 
+
+-- Theme Switcher Function
+function Sync:SetTheme(themeName)
+    if Sync.Themes[themeName] then
+        Theme = Sync.Themes[themeName]
+    end
+end
+
+local function Create(cls, props)
+-- [The rest of your script stays exactly the same from here down]
 local function Create(cls, props)
     local inst = Instance.new(cls)
     for k, v in pairs(props) do if k ~= "Parent" then inst[k] = v end end
