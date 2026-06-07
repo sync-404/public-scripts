@@ -1,7 +1,7 @@
 --[[
     __  _  _  _  _  __   
    / __)( \/ )( \( )/ __)  SYNC UI FRAMEWORK
-   \__ \ )  /  )  (( (__  
+   \__ \ )  /  )  (( (__   v1.0
    (__/ (__/  (_)\_)\___) 
 --]]
 
@@ -15,55 +15,33 @@ local ParentGui = getfenv().gethui and gethui() or CoreGui
 -- === THEME CONFIGURATION ===
 Sync.Themes = {
     Default = {
-        Background = Color3.fromRGB(13, 15, 18),
-        Container = Color3.fromRGB(20, 22, 27),
-        Border = Color3.fromRGB(35, 38, 45),
-        Accent = Color3.fromRGB(0, 212, 255), -- Electric Cyan
-        TextMain = Color3.fromRGB(240, 240, 240),
-        TextDim = Color3.fromRGB(150, 150, 160),
-        Font = Enum.Font.GothamMedium
+        Background = Color3.fromRGB(13, 15, 18), Container = Color3.fromRGB(20, 22, 27),
+        Border = Color3.fromRGB(35, 38, 45), Accent = Color3.fromRGB(0, 212, 255), 
+        TextMain = Color3.fromRGB(240, 240, 240), TextDim = Color3.fromRGB(150, 150, 160), Font = Enum.Font.GothamMedium
     },
     Crimson = {
-        Background = Color3.fromRGB(18, 12, 12),
-        Container = Color3.fromRGB(25, 18, 18),
-        Border = Color3.fromRGB(45, 32, 32),
-        Accent = Color3.fromRGB(255, 60, 60), -- Blood Red
-        TextMain = Color3.fromRGB(245, 235, 235),
-        TextDim = Color3.fromRGB(165, 145, 145),
-        Font = Enum.Font.GothamMedium
+        Background = Color3.fromRGB(18, 12, 12), Container = Color3.fromRGB(25, 18, 18),
+        Border = Color3.fromRGB(45, 32, 32), Accent = Color3.fromRGB(255, 60, 60), 
+        TextMain = Color3.fromRGB(245, 235, 235), TextDim = Color3.fromRGB(165, 145, 145), Font = Enum.Font.GothamMedium
     },
     Amethyst = {
-        Background = Color3.fromRGB(14, 12, 18),
-        Container = Color3.fromRGB(21, 18, 25),
-        Border = Color3.fromRGB(38, 32, 45),
-        Accent = Color3.fromRGB(160, 80, 255), -- Purple
-        TextMain = Color3.fromRGB(240, 235, 245),
-        TextDim = Color3.fromRGB(155, 145, 165),
-        Font = Enum.Font.GothamMedium
+        Background = Color3.fromRGB(14, 12, 18), Container = Color3.fromRGB(21, 18, 25),
+        Border = Color3.fromRGB(38, 32, 45), Accent = Color3.fromRGB(160, 80, 255), 
+        TextMain = Color3.fromRGB(240, 235, 245), TextDim = Color3.fromRGB(155, 145, 165), Font = Enum.Font.GothamMedium
     },
     Carbon = {
-        Background = Color3.fromRGB(10, 10, 10),
-        Container = Color3.fromRGB(15, 15, 15),
-        Border = Color3.fromRGB(25, 25, 25),
-        Accent = Color3.fromRGB(255, 255, 255), -- Pure White
-        TextMain = Color3.fromRGB(220, 220, 220),
-        TextDim = Color3.fromRGB(120, 120, 120),
-        Font = Enum.Font.GothamMedium
+        Background = Color3.fromRGB(10, 10, 10), Container = Color3.fromRGB(15, 15, 15),
+        Border = Color3.fromRGB(25, 25, 25), Accent = Color3.fromRGB(255, 255, 255), 
+        TextMain = Color3.fromRGB(220, 220, 220), TextDim = Color3.fromRGB(120, 120, 120), Font = Enum.Font.GothamMedium
     }
 }
 
--- Initialize with Default
 local Theme = Sync.Themes.Default 
 
--- Theme Switcher Function
 function Sync:SetTheme(themeName)
-    if Sync.Themes[themeName] then
-        Theme = Sync.Themes[themeName]
-    end
+    if Sync.Themes[themeName] then Theme = Sync.Themes[themeName] end
 end
 
-local function Create(cls, props)
--- [The rest of your script stays exactly the same from here down]
 local function Create(cls, props)
     local inst = Instance.new(cls)
     for k, v in pairs(props) do if k ~= "Parent" then inst[k] = v end end
@@ -102,20 +80,13 @@ function Sync:CreateWindow(titleText)
     Window.Gui = Create("ScreenGui", {Name = "SyncUI", Parent = ParentGui})
     
     Window.Main = Create("Frame", {
-        BackgroundColor3 = Theme.Background,
-        Position = UDim2.new(0.5, -250, 0.5, -175),
-        Size = UDim2.new(0, 500, 0, 350),
-        ClipsDescendants = true,
-        Parent = Window.Gui
+        BackgroundColor3 = Theme.Background, Position = UDim2.new(0.5, -250, 0.5, -175),
+        Size = UDim2.new(0, 500, 0, 350), ClipsDescendants = true, Parent = Window.Gui
     })
     Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Window.Main})
     Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = Window.Main})
     
-    Window.Topbar = Create("Frame", {
-        BackgroundColor3 = Theme.Container,
-        Size = UDim2.new(1, 0, 0, 45),
-        Parent = Window.Main
-    })
+    Window.Topbar = Create("Frame", {BackgroundColor3 = Theme.Container, Size = UDim2.new(1, 0, 0, 45), Parent = Window.Main})
     Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Window.Topbar})
     Create("Frame", {BackgroundColor3 = Theme.Border, Size = UDim2.new(1, 0, 0, 1), Position = UDim2.new(0, 0, 1, -1), BorderSizePixel = 0, Parent = Window.Topbar})
     
@@ -125,15 +96,10 @@ function Sync:CreateWindow(titleText)
         TextXAlignment = Enum.TextXAlignment.Left, BackgroundTransparency = 1, Parent = Window.Topbar
     })
     
-    Window.TabContainer = Create("Frame", {
-        BackgroundTransparency = 1, Position = UDim2.new(0, 165, 0, 0), Size = UDim2.new(1, -175, 1, 0), Parent = Window.Topbar
-    })
+    Window.TabContainer = Create("Frame", {BackgroundTransparency = 1, Position = UDim2.new(0, 165, 0, 0), Size = UDim2.new(1, -175, 1, 0), Parent = Window.Topbar})
     Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 15), Parent = Window.TabContainer})
     
-    Window.ContentContainer = Create("Frame", {
-        BackgroundTransparency = 1, Position = UDim2.new(0, 10, 0, 55), Size = UDim2.new(1, -20, 1, -65), Parent = Window.Main
-    })
-    
+    Window.ContentContainer = Create("Frame", {BackgroundTransparency = 1, Position = UDim2.new(0, 10, 0, 55), Size = UDim2.new(1, -20, 1, -65), Parent = Window.Main})
     MakeDraggable(Window.Topbar, Window.Main)
     
     function Window:AddTab(tabName)
@@ -149,7 +115,6 @@ function Sync:CreateWindow(titleText)
         })
         
         local ListLayout = Create("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 8), Parent = Tab.Page})
-        
         ListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
             Tab.Page.CanvasSize = UDim2.new(0, 0, 0, ListLayout.AbsoluteContentSize.Y + 10)
         end)
@@ -163,9 +128,7 @@ function Sync:CreateWindow(titleText)
             Tab.Page.Visible = true
             TweenService:Create(Tab.Button, TweenInfo.new(0.2), {TextColor3 = Theme.TextMain}):Play()
         end
-        
         Tab.Button.MouseButton1Click:Connect(SelectTab)
-        
         if not Window.CurrentTab then SelectTab() end
         
         function Tab:AddButton(text, callback)
@@ -173,11 +136,7 @@ function Sync:CreateWindow(titleText)
             Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = BtnFrame})
             Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = BtnFrame})
             
-            local Btn = Create("TextButton", {
-                Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain,
-                BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), Parent = BtnFrame
-            })
-            
+            local Btn = Create("TextButton", {Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), Parent = BtnFrame})
             Btn.MouseButton1Click:Connect(function()
                 TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Border}):Play()
                 task.wait(0.1)
@@ -192,20 +151,13 @@ function Sync:CreateWindow(titleText)
             Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = TogFrame})
             Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = TogFrame})
             
-            Create("TextLabel", {
-                Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain,
-                BackgroundTransparency = 1, Size = UDim2.new(1, -50, 1, 0), Position = UDim2.new(0, 10, 0, 0), TextXAlignment = Enum.TextXAlignment.Left, Parent = TogFrame
-            })
+            Create("TextLabel", {Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain, BackgroundTransparency = 1, Size = UDim2.new(1, -50, 1, 0), Position = UDim2.new(0, 10, 0, 0), TextXAlignment = Enum.TextXAlignment.Left, Parent = TogFrame})
             
-            local Indicator = Create("Frame", {
-                BackgroundColor3 = toggled and Theme.Accent or Theme.Background,
-                Size = UDim2.new(0, 18, 0, 18), Position = UDim2.new(1, -28, 0.5, -9), Parent = TogFrame
-            })
+            local Indicator = Create("Frame", {BackgroundColor3 = toggled and Theme.Accent or Theme.Background, Size = UDim2.new(0, 18, 0, 18), Position = UDim2.new(1, -28, 0.5, -9), Parent = TogFrame})
             Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = Indicator})
             Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = Indicator})
             
             local Btn = Create("TextButton", {Text = "", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), Parent = TogFrame})
-            
             Btn.MouseButton1Click:Connect(function()
                 toggled = not toggled
                 TweenService:Create(Indicator, TweenInfo.new(0.2), {BackgroundColor3 = toggled and Theme.Accent or Theme.Background}):Play()
@@ -219,25 +171,14 @@ function Sync:CreateWindow(titleText)
             Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = SliderFrame})
             Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = SliderFrame})
 
-            local TitleLabel = Create("TextLabel", {
-                Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain,
-                BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 5), TextXAlignment = Enum.TextXAlignment.Left, Parent = SliderFrame
-            })
+            Create("TextLabel", {Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain, BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 5), TextXAlignment = Enum.TextXAlignment.Left, Parent = SliderFrame})
+            local ValueLabel = Create("TextLabel", {Text = tostring(default), Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextDim, BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 5), TextXAlignment = Enum.TextXAlignment.Right, Parent = SliderFrame})
 
-            local ValueLabel = Create("TextLabel", {
-                Text = tostring(default), Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextDim,
-                BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 5), TextXAlignment = Enum.TextXAlignment.Right, Parent = SliderFrame
-            })
-
-            local BarBG = Create("Frame", {
-                BackgroundColor3 = Theme.Background, Size = UDim2.new(1, -20, 0, 8), Position = UDim2.new(0, 10, 0, 35), Parent = SliderFrame
-            })
+            local BarBG = Create("Frame", {BackgroundColor3 = Theme.Background, Size = UDim2.new(1, -20, 0, 8), Position = UDim2.new(0, 10, 0, 35), Parent = SliderFrame})
             Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = BarBG})
             Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = BarBG})
 
-            local Fill = Create("Frame", {
-                BackgroundColor3 = Theme.Accent, Size = UDim2.new((default - min) / (max - min), 0, 1, 0), Parent = BarBG
-            })
+            local Fill = Create("Frame", {BackgroundColor3 = Theme.Accent, Size = UDim2.new((default - min) / (max - min), 0, 1, 0), Parent = BarBG})
             Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = Fill})
 
             local dragging = false
@@ -250,25 +191,14 @@ function Sync:CreateWindow(titleText)
             end
 
             BarBG.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    dragging = true
-                    UpdateSlider(input)
-                end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = true; UpdateSlider(input) end
             end)
-
             UserInputService.InputChanged:Connect(function(input)
-                if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                    UpdateSlider(input)
-                end
+                if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then UpdateSlider(input) end
             end)
-
             UserInputService.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    dragging = false
-                end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
             end)
-            
-            -- Call initially to set state
             callback(default)
         end
         
@@ -277,25 +207,13 @@ function Sync:CreateWindow(titleText)
             Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = BoxFrame})
             Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = BoxFrame})
 
-            Create("TextLabel", {
-                Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain,
-                BackgroundTransparency = 1, Size = UDim2.new(0.5, 0, 1, 0), Position = UDim2.new(0, 10, 0, 0), TextXAlignment = Enum.TextXAlignment.Left, Parent = BoxFrame
-            })
-
-            local TextBoxBg = Create("Frame", {
-                BackgroundColor3 = Theme.Background, Size = UDim2.new(0.45, 0, 0, 28), Position = UDim2.new(0.5, 0, 0.5, -14), Parent = BoxFrame
-            })
+            Create("TextLabel", {Text = text, Font = Theme.Font, TextSize = 14, TextColor3 = Theme.TextMain, BackgroundTransparency = 1, Size = UDim2.new(0.5, 0, 1, 0), Position = UDim2.new(0, 10, 0, 0), TextXAlignment = Enum.TextXAlignment.Left, Parent = BoxFrame})
+            local TextBoxBg = Create("Frame", {BackgroundColor3 = Theme.Background, Size = UDim2.new(0.45, 0, 0, 28), Position = UDim2.new(0.5, 0, 0.5, -14), Parent = BoxFrame})
             Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = TextBoxBg})
             Create("UIStroke", {Color = Theme.Border, Thickness = 1, Parent = TextBoxBg})
 
-            local TextBox = Create("TextBox", {
-                Text = "", PlaceholderText = placeholder, Font = Theme.Font, TextSize = 12, TextColor3 = Theme.TextMain, PlaceholderColor3 = Theme.TextDim,
-                BackgroundTransparency = 1, Size = UDim2.new(1, -10, 1, 0), Position = UDim2.new(0, 5, 0, 0), TextXAlignment = Enum.TextXAlignment.Left, Parent = TextBoxBg, ClearTextOnFocus = false
-            })
-
-            TextBox.FocusLost:Connect(function(enterPressed)
-                callback(TextBox.Text)
-            end)
+            local TextBox = Create("TextBox", {Text = "", PlaceholderText = placeholder, Font = Theme.Font, TextSize = 12, TextColor3 = Theme.TextMain, PlaceholderColor3 = Theme.TextDim, BackgroundTransparency = 1, Size = UDim2.new(1, -10, 1, 0), Position = UDim2.new(0, 5, 0, 0), TextXAlignment = Enum.TextXAlignment.Left, Parent = TextBoxBg, ClearTextOnFocus = false})
+            TextBox.FocusLost:Connect(function() callback(TextBox.Text) end)
         end
         
         return Tab
