@@ -1,7 +1,7 @@
 --[[
     __  _  _  _  _  __   
    / __)( \/ )( \( )/ __)  SYNC UI FRAMEWORK
-   \__ \ )  /  )  (( (__   
+   \__ \ )  /  )  (( (__  
    (__/ (__/  (_)\_)\___) 
 --]]
 
@@ -10,14 +10,13 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 
--- Use gethui() if it exists (for exploit hiding), otherwise fallback to CoreGui
 local ParentGui = getfenv().gethui and gethui() or CoreGui
 
 local Theme = {
     Background = Color3.fromRGB(13, 15, 18),
     Container = Color3.fromRGB(20, 22, 27),
     Border = Color3.fromRGB(35, 38, 45),
-    Accent = Color3.fromRGB(0, 212, 255), -- Electric Cyan
+    Accent = Color3.fromRGB(0, 212, 255),
     TextMain = Color3.fromRGB(240, 240, 240),
     TextDim = Color3.fromRGB(150, 150, 160),
     Font = Enum.Font.GothamMedium
@@ -33,7 +32,7 @@ end
 local function MakeDraggable(dragArea, moveTarget)
     local dragging, dragInput, dragStart, startPos
     dragArea.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging, dragStart, startPos = true, input.Position, moveTarget.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then dragging = false end
@@ -41,7 +40,9 @@ local function MakeDraggable(dragArea, moveTarget)
         end
     end)
     dragArea.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then 
+            dragInput = input 
+        end
     end)
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
@@ -102,11 +103,16 @@ function Sync:CreateWindow(titleText)
         
         Tab.Page = Create("ScrollingFrame", {
             BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), CanvasSize = UDim2.new(0, 0, 0, 0),
-            AutomaticSize = Enum.AutomaticSize.Y, ScrollBarThickness = 2, ScrollBarImageColor3 = Theme.Border, Visible = false, Parent = Window.ContentContainer
+            ScrollBarThickness = 2, ScrollBarImageColor3 = Theme.Border, Visible = false, Parent = Window.ContentContainer
         })
-        Create("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 8), Parent = Tab.Page})
         
-        Tab.Button.MouseButton1Click:Connect(function()
+        local ListLayout = Create("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 8), Parent = Tab.Page})
+        
+        ListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            Tab.Page.CanvasSize = UDim2.new(0, 0, 0, ListLayout.AbsoluteContentSize.Y + 10)
+        end)
+        
+        local function SelectTab()
             if Window.CurrentTab then
                 Window.CurrentTab.Page.Visible = false
                 TweenService:Create(Window.CurrentTab.Button, TweenInfo.new(0.2), {TextColor3 = Theme.TextDim}):Play()
@@ -114,9 +120,11 @@ function Sync:CreateWindow(titleText)
             Window.CurrentTab = Tab
             Tab.Page.Visible = true
             TweenService:Create(Tab.Button, TweenInfo.new(0.2), {TextColor3 = Theme.TextMain}):Play()
-        end)
+        end
         
-        if not Window.CurrentTab then Tab.Button.MouseButton1Click:Fire() end
+        Tab.Button.MouseButton1Click:Connect(SelectTab)
+        
+        if not Window.CurrentTab then SelectTab() end
         
         function Tab:AddButton(text, callback)
             local BtnFrame = Create("Frame", {BackgroundColor3 = Theme.Container, Size = UDim2.new(1, -5, 0, 35), Parent = Tab.Page})
